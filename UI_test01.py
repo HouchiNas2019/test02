@@ -5,8 +5,9 @@
 ###################################################
 
 import streamlit as st
+import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import pyplot as plt
+import seaborn as sns
 #import matplotlib
 #import matplotlib.pyplot as plt
 #import seaborn as sns
