@@ -5,6 +5,8 @@
 ###################################################
 
 import streamlit as st
+import numpy as np
+from matplotlib import pyplot as plt
 #import matplotlib
 #import matplotlib.pyplot as plt
 #import seaborn as sns
@@ -189,6 +191,8 @@ def tr_class_C(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
     n = [[[0] * 16 for i in range(CLASS_C_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース数
     r = [[[0] * 16 for i in range(CLASS_C_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース割合
     
+    progress_bar = st.progress(0)
+    
     # 育成結果保存判定ケース数のカウント処理
     for j_k in range(0, CLASS_C_J_MAX): # 筋力 -12～-1, +1～+14のループ
         a[i_kin] = v_c[j_k]
@@ -240,6 +244,9 @@ def tr_class_C(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
     tr_num = round(tr_num * fast_mode_rasio)
     for tr_cnt in range(1, tr_num + 1):
         num_pro.append(tr_cnt / fast_mode_rasio)
+        
+        # progress_bar
+        progress_bar.progress(tr_cnt / tr_num)
 
         # 育成プラス出現率
         p[i_kin] = cal_p_c(att[i_kin] / att_max[i_kin])
@@ -284,6 +291,8 @@ def tr_class_B(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
 
     n = [[[0] * 16 for i in range(CLASS_B_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース数
     r = [[[0] * 16 for i in range(CLASS_B_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース割合
+
+    progress_bar = st.progress(0)
     
     # 育成結果保存判定ケース数のカウント処理
     for j_k in range(0, CLASS_B_J_MAX): # 筋力 -12～-1, +6～+17のループ
@@ -337,6 +346,9 @@ def tr_class_B(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
     for tr_cnt in range(1, tr_num + 1):
         num_pro.append(tr_cnt / fast_mode_rasio)
 
+        # progress_bar
+        progress_bar.progress(tr_cnt / tr_num)
+
         # 育成プラス出現率
         p[i_kin] = cal_p_b(att[i_kin] / att_max[i_kin])
         p[i_bin] = cal_p_b(att[i_bin] / att_max[i_bin])
@@ -380,7 +392,9 @@ def tr_class_A(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
 
     n = [[[0] * 16 for i in range(CLASS_A_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース数
     r = [[[0] * 16 for i in range(CLASS_A_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース割合
-    
+
+    progress_bar = st.progress(0)
+        
     # 育成結果保存判定ケース数のカウント処理
     for j_k in range(0, CLASS_A_J_MAX): # 筋力 -12～-1, +16～+25のループ
         a[i_kin] = v_a[j_k]
@@ -433,317 +447,8 @@ def tr_class_A(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
     for tr_cnt in range(1, tr_num + 1):
         num_pro.append(tr_cnt / fast_mode_rasio)
 
-        # 育成プラス出現率
-        p[i_kin] = cal_p_a(att[i_kin] / att_max[i_kin])
-        p[i_bin] = cal_p_a(att[i_bin] / att_max[i_bin])
-        p[i_chi] = cal_p_a(att[i_chi] / att_max[i_chi])
-        p[i_tai] = cal_p_a(att[i_tai] / att_max[i_tai])
-        
-        # ケース別確率
-        pp = cal_pp(p)
-        
-        for i in range(i_kin, i_tai + 1):
-            ev[i] = 0
-            for j in range(0, CLASS_A_J_MAX):
-                for ss in range(0, 16):
-                    pd[i][j][ss] = r[i][j][ss] * pp[ss]     # 確率分布
-                    ev[i] = ev[i] + pd[i][j][ss] * v_a[j]   # 期待値
-
-        # 属性値を期待値分増加
-        for i in range(i_kin, i_tai + 1):
-            att[i] = att[i] + ev[i] / fast_mode_rasio
-            if att[i] > att_max[i]:
-                att[i] = att_max[i]
-            
-            # 期待値・属性値のプロファイルを保存
-            ev_pro[i].append(ev[i])
-            att_pro[i].append(att[i])
-            att_rate_pro[i].append(att[i] / att_max[i])
-
-########################################
-# S級育成処理
-def tr_class_S(tr_num, att_ini, att_max, fast_mode_rasio):
-
-    att = att_ini   # 属性値
-    ev = [0] * 4    # 期待値
-
-    # 期待値計算
-    tr_num = round(tr_num * fast_mode_rasio)
-    for tr_cnt in range(1, tr_num + 1):
-        num_pro.append(tr_cnt / fast_mode_rasio)
-
-        # 属性値を期待値分増加
-        for i in range(i_kin, i_tai + 1):
-            ev[i] = 35  # S級期待値は35固定
-            att[i] = att[i] + ev[i] / fast_mode_rasio
-            if att[i] > att_max[i]:
-                att[i] = att_max[i]
-            
-            # 期待値・属性値のプロファイルを保存
-            ev_pro[i].append(ev[i])
-            att_pro[i].append(att[i])
-            att_rate_pro[i].append(att[i] / att_max[i])
-
-########################################
-# C級育成処理
-def tr_class_C(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
-    
-    att = att_ini   # 属性値
-    
-    a = [0] * 4     # 育成出現値
-    s = [0] * 4     # 育成出現値符号
-    p = [0] * 4     # 育成プラス出現確率
-    pp = [0] * 16   # ケース別確率
-    pd = [[[0] * 16 for i in range(CLASS_C_J_MAX)] for j in range(4)]  # 確率分布
-
-    ev = [0] * 4    # 期待値
-
-    n = [[[0] * 16 for i in range(CLASS_C_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース数
-    r = [[[0] * 16 for i in range(CLASS_C_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース割合
-    
-    # 育成結果保存判定ケース数のカウント処理
-    for j_k in range(0, CLASS_C_J_MAX): # 筋力 -12～-1, +1～+14のループ
-        a[i_kin] = v_c[j_k]
-        if a[i_kin] > 0:
-            s[i_kin] = 8
-        else:
-            s[i_kin] = 0
-        
-        for j_b in range(0, CLASS_C_J_MAX): # 敏捷 -12～-1, +1～+14のループ
-            a[i_bin] = v_c[j_b]
-            if a[i_bin] > 0:
-                s[i_bin] = 4
-            else:
-                s[i_bin] = 0
-            
-            for j_c in range(0, CLASS_C_J_MAX): # 知力 -12～-1, +1～+14のループ
-                a[i_chi] = v_c[j_c]
-                if a[i_chi] > 0:
-                    s[i_chi] = 2
-                else:
-                    s[i_chi] = 0
-                
-                for j_t in range(0, CLASS_C_J_MAX): # 体力 -12～-1, +1～+14のループ
-                    a[i_tai] = v_c[j_t]
-                    if a[i_tai] > 0:
-                        s[i_tai] = 1
-                    else:
-                        s[i_tai] = 0
-                    
-                    # 育成結果の保存判定用　評価値
-                    e = a[i_kin] * tr_w[i_kin] + a[i_bin] * tr_w[i_bin] + a[i_chi] * tr_w[i_chi] + a[i_tai] * tr_w[i_tai] + tr_bias
-                    
-                    # ケースNo.
-                    ss = s[i_kin] + s[i_bin] + s[i_chi] + s[i_tai]
-                    
-                    if e > 0:   # 保存判定ケース数
-                        n[i_kin][j_k][ss] = n[i_kin][j_k][ss] + 1
-                        n[i_bin][j_b][ss] = n[i_bin][j_b][ss] + 1
-                        n[i_chi][j_c][ss] = n[i_chi][j_c][ss] + 1
-                        n[i_tai][j_t][ss] = n[i_tai][j_t][ss] + 1
-
-    # 育成結果保存判定ケース割合
-    for i in range(i_kin, i_tai + 1):
-        for j in range(0, CLASS_C_J_MAX):
-            for ss in range(0, 16):
-                r[i][j][ss] = n[i][j][ss] / B_c[ss]
-
-    # 期待値計算
-    tr_num = round(tr_num * fast_mode_rasio)
-    for tr_cnt in range(1, tr_num + 1):
-        num_pro.append(tr_cnt / fast_mode_rasio)
-
-        # 育成プラス出現率
-        p[i_kin] = cal_p_c(att[i_kin] / att_max[i_kin])
-        p[i_bin] = cal_p_c(att[i_bin] / att_max[i_bin])
-        p[i_chi] = cal_p_c(att[i_chi] / att_max[i_chi])
-        p[i_tai] = cal_p_c(att[i_tai] / att_max[i_tai])
-        
-        # ケース別確率
-        pp = cal_pp(p)
-        
-        for i in range(i_kin, i_tai + 1):
-            ev[i] = 0
-            for j in range(0, CLASS_C_J_MAX):
-                for ss in range(0, 16):
-                    pd[i][j][ss] = r[i][j][ss] * pp[ss]     # 確率分布
-                    ev[i] = ev[i] + pd[i][j][ss] * v_c[j]   # 期待値
-
-        # 属性値を期待値分増加
-        for i in range(i_kin, i_tai + 1):
-            att[i] = att[i] + ev[i] / fast_mode_rasio
-            if att[i] > att_max[i]:
-                att[i] = att_max[i]
-            
-            # 期待値・属性値のプロファイルを保存
-            ev_pro[i].append(ev[i])
-            att_pro[i].append(att[i])
-            att_rate_pro[i].append(att[i] / att_max[i])
-
-########################################
-# B級育成処理
-def tr_class_B(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
-    
-    att = att_ini   # 属性値
-    
-    a = [0] * 4     # 育成出現値
-    s = [0] * 4     # 育成出現値符号
-    p = [0] * 4     # 育成プラス出現確率
-    pp = [0] * 16   # ケース別確率
-    pd = [[[0] * 16 for i in range(CLASS_B_J_MAX)] for j in range(4)]  # 確率分布
-
-    ev = [0] * 4    # 期待値
-
-    n = [[[0] * 16 for i in range(CLASS_B_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース数
-    r = [[[0] * 16 for i in range(CLASS_B_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース割合
-    
-    # 育成結果保存判定ケース数のカウント処理
-    for j_k in range(0, CLASS_B_J_MAX): # 筋力 -12～-1, +6～+17のループ
-        a[i_kin] = v_b[j_k]
-        if a[i_kin] > 0:
-            s[i_kin] = 8
-        else:
-            s[i_kin] = 0
-        
-        for j_b in range(0, CLASS_B_J_MAX): # 敏捷 -12～-1, +6～+17のループ
-            a[i_bin] = v_b[j_b]
-            if a[i_bin] > 0:
-                s[i_bin] = 4
-            else:
-                s[i_bin] = 0
-            
-            for j_c in range(0, CLASS_B_J_MAX): # 知力 -12～-1, +6～+17のループ
-                a[i_chi] = v_b[j_c]
-                if a[i_chi] > 0:
-                    s[i_chi] = 2
-                else:
-                    s[i_chi] = 0
-                
-                for j_t in range(0, CLASS_B_J_MAX): # 体力 -12～-1, +6～+17のループ
-                    a[i_tai] = v_b[j_t]
-                    if a[i_tai] > 0:
-                        s[i_tai] = 1
-                    else:
-                        s[i_tai] = 0
-                    
-                    # 育成結果の保存判定用　評価値
-                    e = a[i_kin] * tr_w[i_kin] + a[i_bin] * tr_w[i_bin] + a[i_chi] * tr_w[i_chi] + a[i_tai] * tr_w[i_tai] + tr_bias
-                    
-                    # ケースNo.
-                    ss = s[i_kin] + s[i_bin] + s[i_chi] + s[i_tai]
-                    
-                    if e > 0:   # 保存判定ケース数
-                        n[i_kin][j_k][ss] = n[i_kin][j_k][ss] + 1
-                        n[i_bin][j_b][ss] = n[i_bin][j_b][ss] + 1
-                        n[i_chi][j_c][ss] = n[i_chi][j_c][ss] + 1
-                        n[i_tai][j_t][ss] = n[i_tai][j_t][ss] + 1
-
-    # 育成結果保存判定ケース割合
-    for i in range(i_kin, i_tai + 1):
-        for j in range(0, CLASS_B_J_MAX):
-            for ss in range(0, 16):
-                r[i][j][ss] = n[i][j][ss] / B_b[ss]
-
-    # 期待値計算
-    tr_num = round(tr_num * fast_mode_rasio)
-    for tr_cnt in range(1, tr_num + 1):
-        num_pro.append(tr_cnt / fast_mode_rasio)
-
-        # 育成プラス出現率
-        p[i_kin] = cal_p_b(att[i_kin] / att_max[i_kin])
-        p[i_bin] = cal_p_b(att[i_bin] / att_max[i_bin])
-        p[i_chi] = cal_p_b(att[i_chi] / att_max[i_chi])
-        p[i_tai] = cal_p_b(att[i_tai] / att_max[i_tai])
-        
-        # ケース別確率
-        pp = cal_pp(p)
-        
-        for i in range(i_kin, i_tai + 1):
-            ev[i] = 0
-            for j in range(0, CLASS_B_J_MAX):
-                for ss in range(0, 16):
-                    pd[i][j][ss] = r[i][j][ss] * pp[ss]     # 確率分布
-                    ev[i] = ev[i] + pd[i][j][ss] * v_b[j]   # 期待値
-
-        # 属性値を期待値分増加
-        for i in range(i_kin, i_tai + 1):
-            att[i] = att[i] + ev[i] / fast_mode_rasio
-            if att[i] > att_max[i]:
-                att[i] = att_max[i]
-            
-            # 期待値・属性値のプロファイルを保存
-            ev_pro[i].append(ev[i])
-            att_pro[i].append(att[i])
-            att_rate_pro[i].append(att[i] / att_max[i])
-
-########################################
-# A級育成処理
-def tr_class_A(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
-    
-    att = att_ini   # 属性値
-    
-    a = [0] * 4     # 育成出現値
-    s = [0] * 4     # 育成出現値符号
-    p = [0] * 4     # 育成プラス出現確率
-    pp = [0] * 16   # ケース別確率
-    pd = [[[0] * 16 for i in range(CLASS_A_J_MAX)] for j in range(4)]  # 確率分布
-
-    ev = [0] * 4    # 期待値
-
-    n = [[[0] * 16 for i in range(CLASS_A_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース数
-    r = [[[0] * 16 for i in range(CLASS_A_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース割合
-    
-    # 育成結果保存判定ケース数のカウント処理
-    for j_k in range(0, CLASS_A_J_MAX): # 筋力 -12～-1, +16～+25のループ
-        a[i_kin] = v_a[j_k]
-        if a[i_kin] > 0:
-            s[i_kin] = 8
-        else:
-            s[i_kin] = 0
-        
-        for j_b in range(0, CLASS_A_J_MAX): # 敏捷 -12～-1, +16～+25のループ
-            a[i_bin] = v_a[j_b]
-            if a[i_bin] > 0:
-                s[i_bin] = 4
-            else:
-                s[i_bin] = 0
-            
-            for j_c in range(0, CLASS_A_J_MAX): # 知力 -12～-1, +16～+25のループ
-                a[i_chi] = v_a[j_c]
-                if a[i_chi] > 0:
-                    s[i_chi] = 2
-                else:
-                    s[i_chi] = 0
-                
-                for j_t in range(0, CLASS_A_J_MAX): # 体力 -12～-1, +16～+25のループ
-                    a[i_tai] = v_a[j_t]
-                    if a[i_tai] > 0:
-                        s[i_tai] = 1
-                    else:
-                        s[i_tai] = 0
-                    
-                    # 育成結果の保存判定用　評価値
-                    e = a[i_kin] * tr_w[i_kin] + a[i_bin] * tr_w[i_bin] + a[i_chi] * tr_w[i_chi] + a[i_tai] * tr_w[i_tai] + tr_bias
-                    
-                    # ケースNo.
-                    ss = s[i_kin] + s[i_bin] + s[i_chi] + s[i_tai]
-                    
-                    if e > 0:   # 保存判定ケース数
-                        n[i_kin][j_k][ss] = n[i_kin][j_k][ss] + 1
-                        n[i_bin][j_b][ss] = n[i_bin][j_b][ss] + 1
-                        n[i_chi][j_c][ss] = n[i_chi][j_c][ss] + 1
-                        n[i_tai][j_t][ss] = n[i_tai][j_t][ss] + 1
-
-    # 育成結果保存判定ケース割合
-    for i in range(i_kin, i_tai + 1):
-        for j in range(0, CLASS_A_J_MAX):
-            for ss in range(0, 16):
-                r[i][j][ss] = n[i][j][ss] / B_a[ss]
-
-    # 期待値計算
-    tr_num = round(tr_num * fast_mode_rasio)
-    for tr_cnt in range(1, tr_num + 1):
-        num_pro.append(tr_cnt / fast_mode_rasio)
+        # progress_bar
+        progress_bar.progress(tr_cnt / tr_num)
 
         # 育成プラス出現率
         p[i_kin] = cal_p_a(att[i_kin] / att_max[i_kin])
@@ -779,10 +484,15 @@ def tr_class_S(tr_num, att_ini, att_max, fast_mode_rasio):
     att = att_ini   # 属性値
     ev = [0] * 4    # 期待値
 
+    progress_bar = st.progress(0)
+    
     # 期待値計算
     tr_num = round(tr_num * fast_mode_rasio)
     for tr_cnt in range(1, tr_num + 1):
         num_pro.append(tr_cnt / fast_mode_rasio)
+
+        # progress_bar
+        progress_bar.progress(tr_cnt / tr_num)
 
         # 属性値を期待値分増加
         for i in range(i_kin, i_tai + 1):
@@ -799,33 +509,54 @@ def tr_class_S(tr_num, att_ini, att_max, fast_mode_rasio):
 ###########################
 # メイン処理
 def main():
-    # カラムを追加する
-    col1, col2 = st.columns(2)
-    
+    st.title('放置少女　育成シミュレータ')
+    st.header('Ver 1.00')
+
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
         CLASS = st.selectbox('育成級', ['C級', 'B級', 'A級', 'S級'])
-        st.subheader('初期値')
+    with col2:
+        NUM = st.number_input(label='育成回数', value=7000, min_value=1, max_value=100000)
+    
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
         KIN_ini = st.number_input(label='筋力 初期値', value=4291, )
+    with col2:
         BIN_ini = st.number_input(label='敏捷 初期値', value=3837, )
+    with col3:
         CHI_ini = st.number_input(label='知力 初期値', value=3751, )
+    with col4:
         TAI_ini = st.number_input(label='体力 初期値', value=4282, )
     
-    with col2:
-        NUM = st.number_input(label='育成回数', value=7000, )
-        st.subheader('上限値')
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
         KIN_max = st.number_input(label='筋力 上限値', value=192200, )
+    with col2:
         BIN_max = st.number_input(label='敏捷 上限値', value=178920, )
+    with col3:
         CHI_max = st.number_input(label='知力 上限値', value=176340, )
+    with col4:
         TAI_max = st.number_input(label='体力 上限値', value=185360, )
     
-    W_kin = st.number_input(label='筋力 重み', value=1.0, )
-    W_bin = st.number_input(label='敏捷 重み', value=1.0, )
-    W_chi = st.number_input(label='知力 重み', value=1.0, )
-    W_tai = st.number_input(label='体力 重み', value=1.0, )
-    BIAS = st.number_input(label='バイアス', value=0.0, )
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        W_kin = st.number_input(label='筋力 重み', value=1.0, )
+    with col2:
+        W_bin = st.number_input(label='敏捷 重み', value=1.0, )
+    with col3:
+        W_chi = st.number_input(label='知力 重み', value=1.0, )
+    with col4:
+        W_tai = st.number_input(label='体力 重み', value=1.0, )
     
-    GRAPH_PLOT = st.selectbox('グラフ描画', ['ON', 'OFF'])
-    FAST_MODE = st.selectbox('高速モード', ['ON', 'OFF'])
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        BIAS = st.number_input(label='バイアス', value=0.0, )
+    
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        GRAPH_PLOT = st.selectbox('グラフ描画', ['ON', 'OFF'])
+    with col2:
+        FAST_MODE = st.selectbox('高速モード', ['ON', 'OFF'])
  
     if st.button('実行'):
         att_ini = [KIN_ini, BIN_ini, CHI_ini, TAI_ini]
@@ -854,17 +585,20 @@ def main():
             dummy() #何もしない
     
         # 結果表示
-        st.write("◆育成結果(絶対値)")
-        st.write("筋力:{:>6.0f}".format(KIN_ini), " -> {:>6.0f}".format(att_pro[0][-1]), "({:>+6.0f})".format(att_pro[0][-1] - KIN_ini))
-        st.write("敏捷:{:>6.0f}".format(BIN_ini), " -> {:>6.0f}".format(att_pro[1][-1]), "({:>+6.0f})".format(att_pro[1][-1] - BIN_ini))
-        st.write("知力:{:>6.0f}".format(CHI_ini), " -> {:>6.0f}".format(att_pro[2][-1]), "({:>+6.0f})".format(att_pro[2][-1] - CHI_ini))
-        st.write("体力:{:>6.0f}".format(TAI_ini), " -> {:>6.0f}".format(att_pro[3][-1]), "({:>+6.0f})".format(att_pro[3][-1] - TAI_ini))
-        st.write("")
-        st.write("◆育成結果(育成割合[%])")
-        st.write("筋力:{:>6.1%}".format(KIN_ini / att_max[0]), " -> {:>6.1%}".format(att_rate_pro[0][-1]), "({:>+6.1%})".format((att_pro[0][-1] - KIN_ini) / att_max[0]))
-        st.write("敏捷:{:>6.1%}".format(BIN_ini / att_max[1]), " -> {:>6.1%}".format(att_rate_pro[1][-1]), "({:>+6.1%})".format((att_pro[1][-1] - BIN_ini) / att_max[1]))
-        st.write("知力:{:>6.1%}".format(CHI_ini / att_max[2]), " -> {:>6.1%}".format(att_rate_pro[2][-1]), "({:>+6.1%})".format((att_pro[2][-1] - CHI_ini) / att_max[2]))
-        st.write("体力:{:>6.1%}".format(TAI_ini / att_max[3]), " -> {:>6.1%}".format(att_rate_pro[3][-1]), "({:>+6.1%})".format((att_pro[3][-1] - TAI_ini) / att_max[3]))    
+        st.success("◆育成結果(絶対値)")
+        st.write("筋力:{:>6.0f}".format(KIN_ini), "  ->  {:>6.0f}".format(att_pro[0][-1]), "({:>+6.0f})".format(att_pro[0][-1] - KIN_ini))
+        st.write("敏捷:{:>6.0f}".format(BIN_ini), "  ->  {:>6.0f}".format(att_pro[1][-1]), "({:>+6.0f})".format(att_pro[1][-1] - BIN_ini))
+        st.write("知力:{:>6.0f}".format(CHI_ini), "  ->  {:>6.0f}".format(att_pro[2][-1]), "({:>+6.0f})".format(att_pro[2][-1] - CHI_ini))
+        st.write("体力:{:>6.0f}".format(TAI_ini), "  ->  {:>6.0f}".format(att_pro[3][-1]), "({:>+6.0f})".format(att_pro[3][-1] - TAI_ini))
+        st.success("◆育成結果(育成割合[%])")
+        st.write("筋力:{:>6.1%}".format(KIN_ini / att_max[0]), "  ->  {:>6.1%}".format(att_rate_pro[0][-1]), "({:>+6.1%})".format((att_pro[0][-1] - KIN_ini) / att_max[0]))
+        st.write("敏捷:{:>6.1%}".format(BIN_ini / att_max[1]), "  ->  {:>6.1%}".format(att_rate_pro[1][-1]), "({:>+6.1%})".format((att_pro[1][-1] - BIN_ini) / att_max[1]))
+        st.write("知力:{:>6.1%}".format(CHI_ini / att_max[2]), "  ->  {:>6.1%}".format(att_rate_pro[2][-1]), "({:>+6.1%})".format((att_pro[2][-1] - CHI_ini) / att_max[2]))
+        st.write("体力:{:>6.1%}".format(TAI_ini / att_max[3]), "  ->  {:>6.1%}".format(att_rate_pro[3][-1]), "({:>+6.1%})".format((att_pro[3][-1] - TAI_ini) / att_max[3]))    
+
+        # グラフ表示
+        #if GRAPH_PLOT == "ON":
+            #
 
 if __name__ == '__main__':
     main()
