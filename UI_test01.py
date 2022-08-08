@@ -5,10 +5,10 @@
 ###################################################
 
 import streamlit as st
-import matplotlib
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
+#import matplotlib
+#import matplotlib.pyplot as plt
+#import seaborn as sns
+#import numpy as np
 
 ########################################
 # 定数
@@ -798,128 +798,6 @@ def tr_class_S(tr_num, att_ini, att_max, fast_mode_rasio):
 
 ###########################
 # メイン処理
-def hs_trainning_sim_main():
-
-    # フォームからの入力
-    #@markdown CLASS = 育成級、NUM = 育成回数
-    CLASS = "C\u7D1A" #@param ["C\u7D1A", "B\u7D1A", "A\u7D1A", "S\u7D1A"]
-    NUM =  7000#@param {type:"integer"}
-    #@markdown 筋力・敏捷・知力・体力の初期値
-    KIN_ini =  4288#@param {type:"integer"}
-    BIN_ini =  3837#@param {type:"integer"}
-    CHI_ini =  3751#@param {type:"integer"}
-    TAI_ini =  4282#@param {type:"integer"}
-    #@markdown 筋力・敏捷・知力・体力の上限値
-    KIN_max =  192200#@param {type:"integer"}
-    BIN_max =  178920#@param {type:"integer"}
-    CHI_max =  176340#@param {type:"integer"}
-    TAI_max =  185360#@param {type:"integer"}
-    #@markdown 保存判定の筋力・敏捷・知力・体力の重み係数、バイアス値
-    W_kin =  1#@param {type:"number"}
-    W_bin =  1#@param {type:"number"}
-    W_chi =  1#@param {type:"number"}
-    W_tai =  1#@param {type:"number"}
-    BIAS =  0#@param {type:"number"}
-    #@markdown グラフ表示のON/OFF、高速計算モードのON/OFF
-    GRAPH_PLOT = "ON" #@param ["ON", "OFF"]
-    FAST_MODE = "ON" #@param ["ON", "OFF"]
-
-    
-    att_ini = [KIN_ini, BIN_ini, CHI_ini, TAI_ini]
-    att_max = [KIN_max, BIN_max, CHI_max, TAI_max]
-    tr_w = [W_kin, W_bin, W_chi, W_tai]
-
-    # 高速計算モード設定
-    if (FAST_MODE == "ON") and (NUM > FAST_MODE_RESO):
-        fast_mode_rasio = FAST_MODE_RESO / NUM
-    else:
-        fast_mode_rasio = 1.0
-
-    # 定数配列初期化
-    init01()
-    
-    # 育成級別処理
-
-    if CLASS == "C級":
-        tr_class_C(NUM, tr_w, BIAS, att_ini, att_max, fast_mode_rasio)
-    elif CLASS == "B級":
-        tr_class_B(NUM, tr_w, BIAS, att_ini, att_max, fast_mode_rasio)
-    elif CLASS == "A級":
-        tr_class_A(NUM, tr_w, BIAS, att_ini, att_max, fast_mode_rasio)
-    elif CLASS == "S級":
-        tr_class_S(NUM, att_ini, att_max, fast_mode_rasio)
-    else:
-        dummy() #何もしない
-
-    # 結果表示
-    print("◆育成結果(絶対値)")
-    print("筋力:{:>6.0f}".format(KIN_ini), " -> {:>6.0f}".format(att_pro[0][-1]), "({:>+6.0f})".format(att_pro[0][-1] - KIN_ini))
-    print("敏捷:{:>6.0f}".format(BIN_ini), " -> {:>6.0f}".format(att_pro[1][-1]), "({:>+6.0f})".format(att_pro[1][-1] - BIN_ini))
-    print("知力:{:>6.0f}".format(CHI_ini), " -> {:>6.0f}".format(att_pro[2][-1]), "({:>+6.0f})".format(att_pro[2][-1] - CHI_ini))
-    print("体力:{:>6.0f}".format(TAI_ini), " -> {:>6.0f}".format(att_pro[3][-1]), "({:>+6.0f})".format(att_pro[3][-1] - TAI_ini))
-    print("")
-    print("◆育成結果(育成割合[%])")
-    print("筋力:{:>6.1%}".format(KIN_ini / att_max[0]), " -> {:>6.1%}".format(att_rate_pro[0][-1]), "({:>+6.1%})".format((att_pro[0][-1] - KIN_ini) / att_max[0]))
-    print("敏捷:{:>6.1%}".format(BIN_ini / att_max[1]), " -> {:>6.1%}".format(att_rate_pro[1][-1]), "({:>+6.1%})".format((att_pro[1][-1] - BIN_ini) / att_max[1]))
-    print("知力:{:>6.1%}".format(CHI_ini / att_max[2]), " -> {:>6.1%}".format(att_rate_pro[2][-1]), "({:>+6.1%})".format((att_pro[2][-1] - CHI_ini) / att_max[2]))
-    print("体力:{:>6.1%}".format(TAI_ini / att_max[3]), " -> {:>6.1%}".format(att_rate_pro[3][-1]), "({:>+6.1%})".format((att_pro[3][-1] - TAI_ini) / att_max[3]))    
-    
-    # グラフ表示
-    if GRAPH_PLOT == "ON":
-        plt.style.use('default')
-        sns.set()
-        sns.set_style('whitegrid')
-        sns.set_palette('Set1')
-            
-        x = np.array(num_pro)
-
-        # 属性値(絶対値)のグラフ
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
-
-        ax.plot(x, np.array(att_pro[0]), label="KIN")
-        ax.plot(x, np.array(att_pro[1]), label="BIN")
-        ax.plot(x, np.array(att_pro[2]), label="CHI")
-        ax.plot(x, np.array(att_pro[3]), label="TAI")
-
-        ax.legend()
-        ax.set_xlabel("NUM")
-        ax.set_ylabel("Status (Abs.)")
-
-        plt.show()
-
-        # 属性値(育成割合[%])のグラフ
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
-
-        ax.plot(x, np.array(att_rate_pro[0]), label="KIN")
-        ax.plot(x, np.array(att_rate_pro[1]), label="BIN")
-        ax.plot(x, np.array(att_rate_pro[2]), label="CHI")
-        ax.plot(x, np.array(att_rate_pro[3]), label="TAI")
-
-        ax.legend()
-        ax.set_xlabel("NUM")
-        ax.set_ylabel("Status (%)")
-        ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-
-        plt.show()
-
-        # 属性値(育成割合[%])のグラフ
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
-
-        ax.plot(x, np.array(ev_pro[0]), label="KIN")
-        ax.plot(x, np.array(ev_pro[1]), label="BIN")
-        ax.plot(x, np.array(ev_pro[2]), label="CHI")
-        ax.plot(x, np.array(ev_pro[3]), label="TAI")
-
-        ax.legend()
-        ax.set_xlabel("NUM")
-        ax.set_ylabel("Expected value")
-
-        plt.show()
-
-
 def main():
     # カラムを追加する
     col1, col2 = st.columns(2)
