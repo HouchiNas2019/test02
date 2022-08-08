@@ -5,6 +5,7 @@
 ###################################################
 
 import streamlit as st
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -247,7 +248,9 @@ def tr_class_C(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
         num_pro.append(tr_cnt / fast_mode_rasio)
         
         # progress_bar
-        progress_bar.progress(tr_cnt / tr_num)
+        pro = (tr_cnt * 100) // tr_num
+        if pro % 10 == 0:
+            progress_bar.progress(pro)
 
         # 育成プラス出現率
         p[i_kin] = cal_p_c(att[i_kin] / att_max[i_kin])
@@ -348,7 +351,9 @@ def tr_class_B(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
         num_pro.append(tr_cnt / fast_mode_rasio)
 
         # progress_bar
-        progress_bar.progress(tr_cnt / tr_num)
+        pro = (tr_cnt * 100) // tr_num
+        if pro % 10 == 0:
+            progress_bar.progress(pro)
 
         # 育成プラス出現率
         p[i_kin] = cal_p_b(att[i_kin] / att_max[i_kin])
@@ -449,7 +454,9 @@ def tr_class_A(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
         num_pro.append(tr_cnt / fast_mode_rasio)
 
         # progress_bar
-        progress_bar.progress(tr_cnt / tr_num)
+        pro = (tr_cnt * 100) // tr_num
+        if pro % 10 == 0:
+            progress_bar.progress(pro)
 
         # 育成プラス出現率
         p[i_kin] = cal_p_a(att[i_kin] / att_max[i_kin])
@@ -493,7 +500,9 @@ def tr_class_S(tr_num, att_ini, att_max, fast_mode_rasio):
         num_pro.append(tr_cnt / fast_mode_rasio)
 
         # progress_bar
-        progress_bar.progress(tr_cnt / tr_num)
+        pro = (tr_cnt * 100) // tr_num
+        if pro % 10 == 0:
+            progress_bar.progress(pro)
 
         # 属性値を期待値分増加
         for i in range(i_kin, i_tai + 1):
@@ -598,8 +607,62 @@ def main():
         st.write("体力:{:>6.1%}".format(TAI_ini / att_max[3]), "  ->  {:>6.1%}".format(att_rate_pro[3][-1]), "({:>+6.1%})".format((att_pro[3][-1] - TAI_ini) / att_max[3]))    
 
         # グラフ表示
-        #if GRAPH_PLOT == "ON":
-            #
+        if GRAPH_PLOT == "ON":
+            plt.style.use('default')
+            sns.set()
+            sns.set_style('whitegrid')
+            sns.set_palette('Set1')
+                
+            x = np.array(num_pro)
+
+            # 属性値(絶対値)のグラフ
+            fig = plt.figure()
+            ax = fig.add_subplot(1, 1, 1)
+
+            ax.plot(x, np.array(att_pro[0]), label="KIN")
+            ax.plot(x, np.array(att_pro[1]), label="BIN")
+            ax.plot(x, np.array(att_pro[2]), label="CHI")
+            ax.plot(x, np.array(att_pro[3]), label="TAI")
+
+            ax.legend()
+            ax.set_xlabel('NUM')
+            ax.set_ylabel("Status (Abs.)")
+
+            st.subheader('グラフ：育成回数－ステータス値')
+            st.pyplot(fig)
+
+            # 属性値(育成割合[%])のグラフ
+            fig = plt.figure()
+            ax = fig.add_subplot(1, 1, 1)
+
+            ax.plot(x, np.array(att_rate_pro[0]), label="KIN")
+            ax.plot(x, np.array(att_rate_pro[1]), label="BIN")
+            ax.plot(x, np.array(att_rate_pro[2]), label="CHI")
+            ax.plot(x, np.array(att_rate_pro[3]), label="TAI")
+
+            ax.legend()
+            ax.set_xlabel("NUM")
+            ax.set_ylabel("Status (%)")
+            ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+
+            st.subheader('グラフ：育成回数－育成割合')
+            st.pyplot(fig)
+
+            # 属性値(育成割合[%])のグラフ
+            fig = plt.figure()
+            ax = fig.add_subplot(1, 1, 1)
+
+            ax.plot(x, np.array(ev_pro[0]), label="KIN")
+            ax.plot(x, np.array(ev_pro[1]), label="BIN")
+            ax.plot(x, np.array(ev_pro[2]), label="CHI")
+            ax.plot(x, np.array(ev_pro[3]), label="TAI")
+
+            ax.legend()
+            ax.set_xlabel("NUM")
+            ax.set_ylabel("Expected value")
+
+            st.subheader('グラフ：育成回数－1回当たりの期待値')
+            st.pyplot(fig)
 
 if __name__ == '__main__':
     main()
