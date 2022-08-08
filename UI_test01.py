@@ -249,7 +249,7 @@ def tr_class_C(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
         
         # progress_bar
         pro = (tr_cnt * 100) // tr_num
-        if pro % 10 == 0:
+        if pro % 5 == 0:
             progress_bar.progress(pro)
 
         # 育成プラス出現率
@@ -352,7 +352,7 @@ def tr_class_B(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
 
         # progress_bar
         pro = (tr_cnt * 100) // tr_num
-        if pro % 10 == 0:
+        if pro % 5 == 0:
             progress_bar.progress(pro)
 
         # 育成プラス出現率
@@ -455,7 +455,7 @@ def tr_class_A(tr_num, tr_w, tr_bias, att_ini, att_max, fast_mode_rasio):
 
         # progress_bar
         pro = (tr_cnt * 100) // tr_num
-        if pro % 10 == 0:
+        if pro % 5 == 0:
             progress_bar.progress(pro)
 
         # 育成プラス出現率
@@ -501,7 +501,7 @@ def tr_class_S(tr_num, att_ini, att_max, fast_mode_rasio):
 
         # progress_bar
         pro = (tr_cnt * 100) // tr_num
-        if pro % 10 == 0:
+        if pro % 5 == 0:
             progress_bar.progress(pro)
 
         # 属性値を期待値分増加
@@ -595,12 +595,13 @@ def main():
             dummy() #何もしない
     
         # 結果表示
-        st.success("◆育成結果(絶対値)")
+        st.info("育成結果(絶対値)")
         st.write("筋力:{:>6.0f}".format(KIN_ini), "  ->  {:>6.0f}".format(att_pro[0][-1]), "({:>+6.0f})".format(att_pro[0][-1] - KIN_ini))
         st.write("敏捷:{:>6.0f}".format(BIN_ini), "  ->  {:>6.0f}".format(att_pro[1][-1]), "({:>+6.0f})".format(att_pro[1][-1] - BIN_ini))
         st.write("知力:{:>6.0f}".format(CHI_ini), "  ->  {:>6.0f}".format(att_pro[2][-1]), "({:>+6.0f})".format(att_pro[2][-1] - CHI_ini))
         st.write("体力:{:>6.0f}".format(TAI_ini), "  ->  {:>6.0f}".format(att_pro[3][-1]), "({:>+6.0f})".format(att_pro[3][-1] - TAI_ini))
-        st.success("◆育成結果(育成割合[%])")
+        
+        st.info("育成結果(育成割合[%])")
         st.write("筋力:{:>6.1%}".format(KIN_ini / att_max[0]), "  ->  {:>6.1%}".format(att_rate_pro[0][-1]), "({:>+6.1%})".format((att_pro[0][-1] - KIN_ini) / att_max[0]))
         st.write("敏捷:{:>6.1%}".format(BIN_ini / att_max[1]), "  ->  {:>6.1%}".format(att_rate_pro[1][-1]), "({:>+6.1%})".format((att_pro[1][-1] - BIN_ini) / att_max[1]))
         st.write("知力:{:>6.1%}".format(CHI_ini / att_max[2]), "  ->  {:>6.1%}".format(att_rate_pro[2][-1]), "({:>+6.1%})".format((att_pro[2][-1] - CHI_ini) / att_max[2]))
@@ -628,7 +629,7 @@ def main():
             ax.set_xlabel('NUM')
             ax.set_ylabel("Status (Abs.)")
 
-            st.subheader('グラフ：育成回数－ステータス値')
+            st.info('グラフ：育成回数－ステータス値')
             st.pyplot(fig)
 
             # 属性値(育成割合[%])のグラフ
@@ -645,7 +646,7 @@ def main():
             ax.set_ylabel("Status (%)")
             ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
 
-            st.subheader('グラフ：育成回数－育成割合')
+            st.info('グラフ：育成回数－育成割合[%]')
             st.pyplot(fig)
 
             # 属性値(育成割合[%])のグラフ
@@ -661,7 +662,7 @@ def main():
             ax.set_xlabel("NUM")
             ax.set_ylabel("Expected value")
 
-            st.subheader('グラフ：育成回数－1回当たりの期待値')
+            st.info('グラフ：育成回数－1回当たりの期待値')
             st.pyplot(fig)
 
 if __name__ == '__main__':
