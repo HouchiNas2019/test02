@@ -192,9 +192,9 @@ def tr_class_C(tr_num, tr_num_ini, tr_w, tr_bias, att_ini, att_max, fast_mode_ra
     n = [[[0] * 16 for i in range(CLASS_C_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース数
     r = [[[0] * 16 for i in range(CLASS_C_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース割合
     att = copy.copy(att_ini)   # 属性値
-    
-    progress_bar = st.progress(0)   # progress_bar設置
-    
+
+    progress_bar = st.progress(0)   # progress_bar設置    
+
     # 育成結果保存判定ケース数のカウント処理
     for j_k in range(0, CLASS_C_J_MAX): # 筋力 -12～-1, +1～+14のループ
         a[I_KIN] = v_c[j_k]
@@ -292,8 +292,8 @@ def tr_class_B(tr_num, tr_num_ini, tr_w, tr_bias, att_ini, att_max, fast_mode_ra
     n = [[[0] * 16 for i in range(CLASS_B_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース数
     r = [[[0] * 16 for i in range(CLASS_B_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース割合
     att = copy.copy(att_ini)   # 属性値
-    
-    progress_bar = st.progress(0)   # progress_bar設置
+
+    progress_bar = st.progress(0)   # progress_bar設置    
     
     # 育成結果保存判定ケース数のカウント処理
     for j_k in range(0, CLASS_B_J_MAX): # 筋力 -12～-1, +6～+17のループ
@@ -392,8 +392,8 @@ def tr_class_A(tr_num, tr_num_ini, tr_w, tr_bias, att_ini, att_max, fast_mode_ra
     n = [[[0] * 16 for i in range(CLASS_A_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース数
     r = [[[0] * 16 for i in range(CLASS_A_J_MAX)] for j in range(4)]   # 育成結果保存判定ケース割合
     att = copy.copy(att_ini)   # 属性値
-    
-    progress_bar = st.progress(0)   # progress_bar設置
+
+    progress_bar = st.progress(0)   # progress_bar設置    
         
     # 育成結果保存判定ケース数のカウント処理
     for j_k in range(0, CLASS_A_J_MAX): # 筋力 -12～-1, +16～+25のループ
@@ -485,8 +485,8 @@ def tr_class_S(tr_num, tr_num_ini, att_ini, att_max, fast_mode_rasio):
 
     ev = [0] * 4    # 期待値
     att = copy.copy(att_ini)   # 属性値
-    
-    progress_bar = st.progress(0)   # progress_bar設置
+
+    progress_bar = st.progress(0)   # progress_bar設置    
     
     # 期待値計算
     tr_num = round(tr_num * fast_mode_rasio)
@@ -665,8 +665,9 @@ def main():
     with col2:
         FAST_MODE = st.selectbox('高速モード', ['ON', 'OFF'])
  
-    # 処理実行
+    # 処理実行    
     if st.button('実行'):
+        
         # 定数配列初期化
         init01()
 
@@ -755,6 +756,9 @@ def main():
                                  '+{:>6.1%}'.format(att_rate_pro[I_BIN][-1] - att_ini[0][I_BIN] / att_max[I_BIN]), 
                                  '+{:>6.1%}'.format(att_rate_pro[I_CHI][-1] - att_ini[0][I_CHI] / att_max[I_CHI]), 
                                  '+{:>6.1%}'.format(att_rate_pro[I_TAI][-1] - att_ini[0][I_TAI] / att_max[I_TAI])]
+        
+        complete_check = True
+        
         # 結果表示(表)
         st.info("育成結果(絶対値)")
         st.dataframe(df1)
